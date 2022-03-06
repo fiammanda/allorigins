@@ -3,8 +3,8 @@ const getLogger = require('./logger')
 
 const logger = getLogger(process.env.DEBUG && process.env.DEBUG !== '0')
 
-const DEFAULT_CACHE_TIME = 60 * 60 // 60 minutes
-const MIN_CACHE_TIME = 5 * 60 // 5 minutes
+const DEFAULT_CACHE_TIME = 5 * 60
+const MIN_CACHE_TIME = 0
 
 module.exports = processRequest
 
@@ -56,12 +56,7 @@ function parseRequestMethod(method) {
 
 async function createResponse(page, params, res, startTime) {
   if (['GET', 'HEAD'].includes(params.requestMethod)) {
-    const maxAge = params.disableCache
-      ? 0
-      : Math.max(
-          MIN_CACHE_TIME,
-          Number(params.cacheMaxAge) || DEFAULT_CACHE_TIME
-        )
+    const maxAge = Math.max(MIN_CACHE_TIME, Number(params.age) || DEFAULT_CACHE_TIME)
 
     res.set('Cache-control', `public, max-age=${maxAge}, stale-if-error=600`)
   }
